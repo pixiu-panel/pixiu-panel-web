@@ -48,7 +48,6 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           password: ruleForm.password
         })
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             // 获取后端路由
             initRouter().then(() => {

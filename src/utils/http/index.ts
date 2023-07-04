@@ -13,6 +13,8 @@ import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "@/utils/message";
+import { BaseResult } from "@/api/base";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -167,7 +169,15 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
-          resolve(response);
+          const resp = response as BaseResult<T>;
+          if (resp.code !== 200) {
+            let msg = resp.message;
+            if (resp.errMsg) {
+              msg += ": " + resp.errMsg;
+            }
+            message(msg, { type: "error" });
+          }
+          resolve(resp.data);
         })
         .catch(error => {
           reject(error);

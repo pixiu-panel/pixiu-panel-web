@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { BaseResult } from "@/api/base";
 
 type MenuNode = {
   /*路径*/
@@ -24,5 +23,5 @@ type MenuNode = {
 };
 
 export const getAsyncRoutes = () => {
-  return http.request<BaseResult<Array<MenuNode>>>("get", "/admin/v1/menu");
+  return http.request<Array<MenuNode>>("get", "/admin/v1/menu");
 };

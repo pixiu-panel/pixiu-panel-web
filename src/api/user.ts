@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { BaseResult } from "@/api/base";
 
 export type LoginResult = {
   /** 用户名 */
@@ -16,7 +15,7 @@ export type LoginResult = {
 
 /** 登录 */
 export const getLogin = (data?: object) => {
-  return http.request<BaseResult<LoginResult>>(
+  return http.request<LoginResult>(
     "post",
     "/admin/v1/login",
     { data },
@@ -31,7 +30,7 @@ export const getLogin = (data?: object) => {
 
 /** 刷新token */
 export const refreshTokenApi = (data?: object) => {
-  return http.request<BaseResult<LoginResult>>(
+  return http.request<LoginResult>(
     "post",
     "/admin/v1/login/refresh",
     {
