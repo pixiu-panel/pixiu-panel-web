@@ -14,7 +14,7 @@ import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
-import { BaseResult } from "@/api/base";
+import { BaseResult } from "@/utils/http/base";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -93,7 +93,7 @@ class PureHttp {
                         grant_type: "refresh_token"
                       })
                       .then(res => {
-                        const token = res.data.accessToken;
+                        const token = res.accessToken;
                         config.headers["Authorization"] = formatToken(token);
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
@@ -169,7 +169,9 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
+          // 转换一下类型
           const resp = response as BaseResult<T>;
+          // 判断返回状态码是不是200
           if (resp.code !== 200) {
             let msg = resp.message;
             if (resp.errMsg) {
@@ -180,6 +182,7 @@ class PureHttp {
           resolve(resp.data);
         })
         .catch(error => {
+          message("接口请求异常", { type: "error" });
           reject(error);
         });
     });
