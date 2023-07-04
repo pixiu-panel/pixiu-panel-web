@@ -178,6 +178,7 @@ class PureHttp {
               msg += ": " + resp.errMsg;
             }
             message(msg, { type: "error" });
+            reject(msg);
           }
           resolve(resp.data);
         })
