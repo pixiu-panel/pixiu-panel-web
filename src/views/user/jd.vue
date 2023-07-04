@@ -1,9 +1,11 @@
 <script setup lang="ts">
 defineOptions({
-  name: "Welcome"
+  name: "京东账号"
 });
 </script>
 
 <template>
-  <h1>貔貅面板</h1>
+  <div>
+    <h1>京东账号</h1>
+  </div>
 </template>

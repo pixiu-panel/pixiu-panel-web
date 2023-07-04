@@ -1,9 +1,11 @@
 <script setup lang="ts">
 defineOptions({
-  name: "Welcome"
+  name: "用户列表"
 });
 </script>
 
 <template>
-  <h1>貔貅面板</h1>
+  <div>
+    <h1>用户列表</h1>
+  </div>
 </template>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 defineOptions({
-  name: "Welcome"
+  name: "推送记录"
 });
 </script>
 
 <template>
-  <h1>貔貅面板</h1>
+  <div>
+    <h1>推送记录</h1>
+  </div>
 </template>

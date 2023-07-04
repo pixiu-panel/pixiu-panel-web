@@ -8,7 +8,13 @@ import { addIcon } from "@iconify/vue/dist/offline";
 import HomeFilled from "@iconify-icons/ep/home-filled";
 import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
+import Briefcase from "@iconify-icons/ep/briefcase";
+import Box from "@iconify-icons/ep/box";
+import Checked from "@iconify-icons/ep/checked";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
 addIcon("lollipop", Lollipop);
+addIcon("briefcase", Briefcase);
+addIcon("bod", Box);
+addIcon("checked", Checked);
