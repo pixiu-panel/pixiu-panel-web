@@ -1,4 +1,5 @@
 import { http } from "@/utils/http";
+import { BaseResult } from "@/utils/http/base";
 
 // 京东账号绑定列表item数据
 export type JdBindListResult = {
@@ -42,15 +43,24 @@ export type JdQrcodeResult = {
 
 /** 获取京东绑定账号列表 */
 export const getJdBindList = () => {
-  return http.get<Array<JdBindListResult>>("/admin/v1/jd/binding");
+  return http.request<Array<JdBindListResult>>("get", "/admin/v1/jd/binding");
 };
 
 /** 获取京东授权二维码 */
 export const getJdQrcode = () => {
-  return http.get<JdQrcodeResult>("/admin/v1/jd/binding/qrcode");
+  return http.request<JdQrcodeResult>("get", "/admin/v1/jd/binding/qrcode");
 };
 
 /** 检查京东授权扫码状态 */
-export const checkJdQrcode = () => {
-  return http.get<Object>("/admin/v1/jd/binding/qrcode/check");
+export const checkJdQrcode = (cookie?: string) => {
+  return http.request<string>("get", "/admin/v1/jd/binding/qrcode/check", {
+    params: { key: cookie }
+  });
+};
+
+/** 删除京东账号 */
+export const deleteJdAccount = (id?: string) => {
+  return http.request<BaseResult<string>>("delete", "/admin/v1/jd/binding", {
+    params: { id }
+  });
 };

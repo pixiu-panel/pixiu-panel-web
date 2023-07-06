@@ -4,8 +4,8 @@ export default {
   meta: {
     icon: "briefcase",
     title: "系统管理",
-    // showLink: true,
-    rank: 9
+    rank: 9,
+    roles: ["admin"]
   },
   children: [
     {
