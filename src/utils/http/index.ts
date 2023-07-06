@@ -75,7 +75,7 @@ class PureHttp {
           return config;
         }
         /** 请求白名单，放置一些不需要token的接口（通过设置请求白名单，防止token过期后再请求造成的死循环问题） */
-        const whiteList = ["/refreshToken", "/login"];
+        const whiteList = ["/admin/v1/login", "/admin/v1/login/refresh"];
         return whiteList.some(v => config.url.indexOf(v) > -1)
           ? config
           : new Promise(resolve => {
@@ -183,7 +183,19 @@ class PureHttp {
           resolve(resp.data);
         })
         .catch(error => {
-          message("接口请求异常", { type: "error" });
+          // 手动处理一下错误信息
+          let msg = "接口请求异常，错误代码: " + error.code;
+          if (error.response.data) {
+            const response = error.response.data as BaseResult<any>;
+            msg = response.message;
+            if (response.errMsg) {
+              msg += ": " + response.errMsg;
+            }
+          }
+          if (error.response.status === 401) {
+            useUserStoreHook().logOut();
+          }
+          message(msg, { type: "error" });
           reject(error);
         });
     });
