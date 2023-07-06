@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { getJdBindList } from "@/api/jd";
+import { getJdBindList, getJdQrcode } from "@/api/jd";
 import { onMounted, ref } from "vue";
+import { ElMessageBox } from "element-plus";
+import defaultJdAvatar from "@/assets/jingdong.jpg";
+import { message } from "@/utils/message";
 
 defineOptions({
   name: "京东账号"
@@ -19,9 +22,14 @@ const svg = `
 
 // 已绑定账号列表
 const accountList = ref([]);
+// 京东二维码参数
+const jdQrcodeInfo = ref({});
 
-// 加载
-const formDialogVisible = ref(false);
+// 京东扫码摸态框
+const jdLoginVisible = ref(false);
+// 二维码是否过期
+const jdQrcodeDisable = ref(false);
+// 数据加载
 const dataLoading = ref(true);
 
 // 查询数据
@@ -37,26 +45,29 @@ const getJdBindListData = async () => {
   }
 };
 
+// 获取京东授权二维码
+const getJdQrcodeData = async () => {
+  // 显示Dialog
+  jdLoginVisible.value = true;
+  try {
+    jdQrcodeInfo.value = await getJdQrcode();
+  } catch (e) {
+    message("获取授权二维码失败", { type: "error" });
+    // 关闭弹窗
+    jdLoginVisible.value = false;
+  }
+};
+
 // 删除账号
-// const handleDeleteItem = account => {
-//   ElMessageBox.confirm(account ? `确认删除[${account.pin}]吗？` : "", "提示", {
-//     type: "warning"
-//   })
-//     .then(() => {
-//       message("删除成功", { type: "success" });
-//     })
-//     .catch(() => {});
-// };
-// 修改账号
-// const handleManageProduct = product => {
-//   formDialogVisible.value = true;
-//   nextTick(() => {
-//     formData.value = { ...product, status: product?.isSetup ? "1" : "0" };
-//   });
-// };
-// 默认头像
-const defaultAvatar =
-  "https://img10.360buyimg.com/img/jfs/t1/192028/25/33459/5661/63fc2af2F1f6ae1b6/d0e4fdc2f126cbf5.png";
+const deleteAccountHandle = account => {
+  ElMessageBox.confirm(account ? `确认删除[${account.pin}]吗？` : "", "提示", {
+    type: "warning"
+  })
+    .then(() => {
+      message("删除成功", { type: "success" });
+    })
+    .catch(() => {});
+};
 
 // 页面加载，拉取已绑定数据列表
 onMounted(() => {
@@ -67,7 +78,7 @@ onMounted(() => {
 <template>
   <div class="main">
     <div class="w-full flex justify-between mb-4">
-      <el-button @click="formDialogVisible = true"> 绑定新账号 </el-button>
+      <el-button @click="getJdQrcodeData"> 绑定新账号 </el-button>
     </div>
 
     <div
@@ -87,46 +98,65 @@ onMounted(() => {
             :lg="6"
             :xl="4"
           >
-            <el-card :body-style="{ padding: '0px' }">
-              <img
-                :src="account.avatar ? account.avatar : defaultAvatar"
-                class="image"
-                :alt="account.username"
-              />
-              <div style="padding: 14px">
-                <span>{{ account.pin }}</span>
-                <div class="bottom">
-                  <time class="time">{{ account.remark }}</time>
-                  <el-button text class="button">操作</el-button>
+            <el-card :body-style="{ padding: '0px' }" shadow="hover">
+              <template #header>
+                <div style="display: flex; align-items: center">
+                  <el-badge
+                    :value="account.isPlus ? 'PLUS' : ''"
+                    class="item"
+                    type="warning"
+                  >
+                    <el-avatar
+                      :size="50"
+                      :src="account.avatar ? account.avatar : defaultJdAvatar"
+                    />
+                  </el-badge>
+                  <el-button-group style="margin-left: 30%">
+                    <el-button
+                      text
+                      type="primary"
+                      size="small"
+                      :disabled="account.expired"
+                      @click="getJdQrcodeData"
+                      >刷新</el-button
+                    >
+                    <el-button
+                      text
+                      type="danger"
+                      size="small"
+                      @click="deleteAccountHandle(account)"
+                      >删除</el-button
+                    >
+                  </el-button-group>
                 </div>
-              </div>
+              </template>
+              <el-descriptions column="1" style="padding: 10px" size="small">
+                <el-descriptions-item label="账号">
+                  {{ account.pin }}
+                </el-descriptions-item>
+                <el-descriptions-item label="昵称">
+                  {{ account.nickname }}
+                </el-descriptions-item>
+                <el-descriptions-item label="等级">
+                  {{ account.level }}
+                </el-descriptions-item>
+                <el-descriptions-item label="最近更新">
+                  {{ account.lastUpdate }}
+                </el-descriptions-item>
+              </el-descriptions>
             </el-card>
           </el-col>
         </el-row>
       </template>
     </div>
+
+    <el-dialog v-model="jdLoginVisible" title="请使用京东APP扫码" width="30%">
+      <ReQrcode :text="jdQrcodeInfo.qrUrl" :disabled="jdQrcodeDisable" />
+    </el-dialog>
   </div>
 </template>
 
 <style>
-.time {
-  font-size: 12px;
-  color: #999;
-}
-
-.bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 13px;
-  line-height: 12px;
-}
-
-.button {
-  min-height: auto;
-  padding: 0;
-}
-
 .image {
   display: block;
   width: 100%;
