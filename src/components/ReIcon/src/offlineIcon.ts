@@ -11,6 +11,8 @@ import Lollipop from "@iconify-icons/ep/lollipop";
 import Briefcase from "@iconify-icons/ep/briefcase";
 import Box from "@iconify-icons/ep/box";
 import Checked from "@iconify-icons/ep/checked";
+import Edit from "@iconify-icons/ep/edit";
+import CircleCheck from "@iconify-icons/ep/circle-check";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
@@ -18,3 +20,5 @@ addIcon("lollipop", Lollipop);
 addIcon("briefcase", Briefcase);
 addIcon("bod", Box);
 addIcon("checked", Checked);
+addIcon("edit", Edit);
+addIcon("circleCheck", CircleCheck);

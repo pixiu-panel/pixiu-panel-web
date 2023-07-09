@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  changeJdAccountRemark,
   checkJdQrcode,
   deleteJdAccount,
   getJdBindList,
@@ -111,6 +112,16 @@ const deleteAccountHandle = account => {
     .catch(() => {});
 };
 
+// 修改备注
+const editRemark = account => {
+  changeJdAccountRemark(account).then(() => {
+    // 修改编辑框状态为不可编辑
+    account.canEdit = false;
+    // 提示修改成功
+    message("修改成功", { type: "success" });
+  });
+};
+
 // 页面加载，拉取已绑定数据列表
 onMounted(() => {
   getJdBindListData();
@@ -142,9 +153,11 @@ onMounted(() => {
               <template #header>
                 <div style="display: flex; align-items: center">
                   <el-badge
-                    :value="account.isPlus ? 'PLUS' : ''"
+                    :value="
+                      account.expired ? '已过期' : account.isPlus ? 'PLUS' : ''
+                    "
                     class="item"
-                    type="warning"
+                    :type="account.expired ? 'error' : 'warning'"
                   >
                     <el-avatar
                       :size="50"
@@ -152,7 +165,7 @@ onMounted(() => {
                     />
                   </el-badge>
                   <div style="margin-left: 25%; display: inline-grid">
-                    <el-text truncated>昵称: {{ account.remark }}</el-text>
+                    <el-text truncated>昵称: {{ account.nickname }}</el-text>
                     <el-button-group style="margin-top: 5px; margin-left: -3px">
                       <el-button
                         link
@@ -177,8 +190,33 @@ onMounted(() => {
                 <el-descriptions-item label="账号">
                   {{ account.pin }}
                 </el-descriptions-item>
-                <el-descriptions-item label="昵称">
-                  {{ account.nickname }}
+                <el-descriptions-item label="备注">
+                  <el-input
+                    v-model="account.remark"
+                    :disabled="!account.canEdit"
+                    size="small"
+                    maxlength="13"
+                    show-word-limit
+                    style="width: 80%"
+                    placeholder="未设置"
+                  >
+                    <template #append>
+                      <el-button
+                        link
+                        v-if="!account.canEdit"
+                        @click="account.canEdit = true"
+                      >
+                        修改
+                      </el-button>
+                      <el-button
+                        link
+                        v-else
+                        @click="editRemark(account)"
+                      >
+                        确定
+                      </el-button>
+                    </template>
+                  </el-input>
                 </el-descriptions-item>
                 <el-descriptions-item label="等级">
                   {{ account.level }}

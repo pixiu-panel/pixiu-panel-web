@@ -64,3 +64,10 @@ export const deleteJdAccount = (id?: string) => {
     params: { id }
   });
 };
+
+/** 修改京东账号备注 */
+export const changeJdAccountRemark = (params?: string) => {
+  return http.request<BaseResult<string>>("post", "/admin/v1/jd/binding", {
+    params
+  });
+};
