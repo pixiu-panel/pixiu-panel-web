@@ -44,7 +44,8 @@
   text-transform: uppercase;
   margin: 15px 0;
   color: #999;
-  font: bold 200% Consolas, Monaco, monospace;
+  font-size: 200%;
+  font-family: system-ui;
 }
 
 @media screen and (max-width: 1180px) {
