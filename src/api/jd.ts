@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { BaseResult } from "@/utils/http/base";
 
 // 京东账号绑定列表item数据
 export type JdBindListResult = {
@@ -60,14 +59,14 @@ export const checkJdQrcode = (cookie?: string) => {
 
 /** 删除京东账号 */
 export const deleteJdAccount = (id?: string) => {
-  return http.request<BaseResult<string>>("delete", "/admin/v1/jd/binding", {
+  return http.request<string>("delete", "/admin/v1/jd/binding", {
     params: { id }
   });
 };
 
 /** 修改京东账号备注 */
 export const changeJdAccountRemark = (params?: string) => {
-  return http.request<BaseResult<string>>("post", "/admin/v1/jd/binding", {
+  return http.request<string>("post", "/admin/v1/jd/binding", {
     params
   });
 };
