@@ -3,7 +3,12 @@ import { onMounted, ref, unref } from "vue";
 import wechatRobotQrcode from "@/assets/qrcode/wechat.jpg";
 import qqRobotQrcode from "@/assets/qrcode/qq.jpg";
 import { TabPaneName } from "element-plus";
-import { bindingNotifyPre, checkBindingNotify } from "@/api/notify";
+import {
+  bindingNotifyPre,
+  checkBindingNotify,
+  getBindingAccounts,
+  pageNotifyLog
+} from "@/api/notify";
 import { message } from "@/utils/message";
 
 defineOptions({
@@ -31,46 +36,26 @@ const bindAccounts = ref([]);
 const pushedHistory = ref([]);
 
 // 获取已绑定账号列表
-const getBindAccountsHandle = () => {
-  bindAccounts.value = unref([
-    { id: "xxxxxx", channel: "wechat", account: "jingang1101766085", status: 1 }
-  ]);
+const getBindAccountsHandle = async () => {
+  try {
+    bindAccounts.value = await getBindingAccounts();
+  } catch (e) {
+    console.log("查询绑定推送渠道失败", e);
+  }
 };
 
 // 获取推送记录
-const getPushedHistoryHandle = () => {
-  pushedHistory.value = unref([
-    {
-      id: "xxx",
-      title: "东东农场日常任务",
-      content:
-        "【京东账号4】jd_KWoyhLgWqNZv\n" +
-        "【水果名称】清洁袋5大卷\n" +
-        "【已兑换水果】7次\n" +
-        "【助力您的好友】_送命或寻欢,七夕篱漠,蒋伟明222\n" +
-        "【今日共浇水】10次\n" +
-        "【剩余 水滴】109g💧\n" +
-        "【水果🍉进度】20.33%，已浇水122次,还需478次\n" +
-        "【预测】47天之后(2023-08-25日)可兑换水果🍉",
-      status: { wechat: true, qq: false },
-      createdAt: "2023-07-12 10:52:04"
-    },
-    {
-      id: "yyyy",
-      title: "东东农场日常任务",
-      content:
-        "【京东账号4】jd_KWoyhLgWqNZv\n" +
-        "【水果名称】清洁袋5大卷\n" +
-        "【已兑换水果】7次\n" +
-        "【助力您的好友】_送命或寻欢,七夕篱漠,蒋伟明222\n" +
-        "【今日共浇水】10次\n" +
-        "【剩余 水滴】109g💧\n" +
-        "【水果🍉进度】20.33%，已浇水122次,还需478次\n" +
-        "【预测】47天之后(2023-08-25日)可兑换水果🍉",
-      status: { wechat: true, qq: true },
-      createdAt: "2023-07-11 10:52:04"
-    }
-  ]);
+const getPushedHistoryHandle = async () => {
+  try {
+    const response = await pageNotifyLog({
+      current: 1,
+      size: 10,
+      userId: "mine"
+    });
+    pushedHistory.value = response.records;
+  } catch (e) {
+    console.log("查询推送记录失败", e);
+  }
 };
 
 // 修改绑定渠道
@@ -157,60 +142,70 @@ onMounted(() => {
       </el-button>
     </div>
     <!-- 正文 -->
-    <div>
-      <el-row>
-        <el-col :span="5">
-          <el-card
-            shadow="always"
-            :key="acc.id"
-            v-for="acc in bindAccounts"
-            style="margin-right: 50px"
-          >
-            <template #header>
-              <div class="account-card-header">
-                <span>{{ translateChannelHandle(acc.channel) }}</span>
-                <el-button text type="danger">删除</el-button>
-              </div>
-            </template>
-            <div>账号: {{ acc.account }}</div>
+    <div style="padding: 10px">
+      <div class="notify-account">
+        <el-card
+          v-for="acc in bindAccounts"
+          shadow="always"
+          :key="acc.id"
+          class="notify-account-card"
+        >
+          <div class="notify-account-card-content">
+            <el-text>渠道:</el-text>
+            <el-text>{{ translateChannelHandle(acc.channel) }}</el-text>
+          </div>
+          <div class="notify-account-card-content">
+            <el-text>账号:</el-text>
+            <el-text>{{ acc.param }}</el-text>
+          </div>
+          <div class="notify-account-card-content">
+            <el-text>操作:</el-text>
+            <el-button size="small" text type="danger">删除</el-button>
+          </div>
+        </el-card>
+      </div>
+
+      <el-divider />
+
+      <el-timeline style="margin-top: 20px">
+        <el-timeline-item
+          v-for="data in pushedHistory"
+          :key="data.id"
+          :timestamp="data.createdAt"
+          placement="top"
+          type="primary"
+          :hollow="true"
+        >
+          <el-card>
+            <el-descriptions :column="1" style="padding: 10px" size="small">
+              <el-descriptions-item label="账号">
+                {{ data.pin }}
+              </el-descriptions-item>
+              <el-descriptions-item label="昵称" v-if="data.jdNickname">
+                {{ data.jdNickname }}
+              </el-descriptions-item>
+              <el-descriptions-item label="任务">
+                {{ data.title }}
+              </el-descriptions-item>
+              <el-descriptions-item label="内容">
+                {{ data.content }}
+              </el-descriptions-item>
+              <el-descriptions-item label="状态" v-if="data.status">
+                <el-tag
+                  v-for="(value, key, index) in data.status"
+                  size="small"
+                  :type="value ? 'success' : 'danger'"
+                  style="margin-right: 10px"
+                  :key="data.id + '-' + index"
+                >
+                  {{ translateChannelHandle(key) }}：
+                  {{ value ? "成功" : "失败" }}
+                </el-tag>
+              </el-descriptions-item>
+            </el-descriptions>
           </el-card>
-        </el-col>
-        <el-col :span="19">
-          <el-timeline>
-            <el-timeline-item
-              v-for="(data, index) in pushedHistory"
-              :key="index"
-              :timestamp="data.createdAt"
-              placement="top"
-              type="primary"
-              :hollow="true"
-            >
-              <el-card>
-                <el-descriptions :column="1" style="padding: 10px" size="small">
-                  <el-descriptions-item label="任务">
-                    {{ data.title }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="内容">
-                    {{ data.content }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="状态">
-                    <el-tag
-                      size="small"
-                      :type="value ? 'success' : 'danger'"
-                      style="margin-right: 10px"
-                      :key="data.id + '-' + idx"
-                      v-for="(value, key, idx) in data.status"
-                    >
-                      {{ translateChannelHandle(key) }}：
-                      {{ value ? "成功" : "失败" }}
-                    </el-tag>
-                  </el-descriptions-item>
-                </el-descriptions>
-              </el-card>
-            </el-timeline-item>
-          </el-timeline>
-        </el-col>
-      </el-row>
+        </el-timeline-item>
+      </el-timeline>
     </div>
 
     <el-dialog
@@ -264,12 +259,20 @@ onMounted(() => {
 <style>
 /* 时间线显示内容支持换行符 */
 .el-descriptions__cell {
+  display: inline-flex;
   white-space: pre-line;
 }
 
-.account-card-header {
+.notify-account {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+}
+
+.notify-account-card {
+  width: 15%;
+  margin-right: 10px;
+}
+
+.notify-account-card-content span {
+  padding-right: 20px;
 }
 </style>

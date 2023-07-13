@@ -164,7 +164,7 @@ onMounted(() => {
                       :src="account.avatar ? account.avatar : defaultJdAvatar"
                     />
                   </el-badge>
-                  <div style="margin-left: 25%; display: inline-grid">
+                  <div style="display: inline-grid; margin-left: 25%">
                     <el-text truncated>昵称: {{ account.nickname }}</el-text>
                     <el-button-group style="margin-top: 5px; margin-left: -3px">
                       <el-button
@@ -208,11 +208,7 @@ onMounted(() => {
                       >
                         修改
                       </el-button>
-                      <el-button
-                        link
-                        v-else
-                        @click="editRemark(account)"
-                      >
+                      <el-button link v-else @click="editRemark(account)">
                         确定
                       </el-button>
                     </template>
@@ -243,17 +239,22 @@ onMounted(() => {
     >
       <div style="text-align: center">
         <ReQrcode
+          v-if="scanMessage === ''"
           :text="jdQrcodeUrl"
-          :disabled="jdQrcodeDisable"
+          :disabled="jdQrcodeDisable || scanMessage !== ''"
           @disabled-click="getJdQrcodeData"
         />
         <div>
-          <el-text v-if="jdQrcodeDisable" type="danger">
-            二维码已过期，请重新获取
-          </el-text>
-          <el-text v-else type="warning">
-            {{ scanMessage }}
-          </el-text>
+          <el-result
+            v-if="jdQrcodeDisable"
+            icon="success"
+            title="二维码已过期，请重新获取"
+          />
+          <el-result
+            v-else-if="scanMessage !== ''"
+            :icon="scanMessage === '绑定成功' ? 'success' : 'warning'"
+            :title="scanMessage"
+          />
         </div>
       </div>
     </el-dialog>
