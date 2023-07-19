@@ -82,3 +82,11 @@ export const pageNotifyLog = (params: PageNotifyLogParam) => {
     { params }
   );
 };
+
+/** 删除已绑定通道 */
+export const deleteBindChannel = (channelId: string) => {
+  return http.request<CheckBindingNotifyResult>(
+    "delete",
+    "/admin/v1/notify/" + channelId
+  );
+};
