@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import Search from "./search/index.vue";
 // import Notice from "./notice/index.vue";
+import ChangePassword from "./changePassword/index.vue";
 import mixNav from "./sidebar/mixNav.vue";
 import { useNav } from "@/layout/hooks/useNav";
 import Breadcrumb from "./sidebar/breadCrumb.vue";
 import topCollapse from "./sidebar/topCollapse.vue";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import Lock from "@iconify-icons/ep/lock";
 import Setting from "@iconify-icons/ri/settings-3-line";
+import { ref, unref } from "vue";
 
 const {
   layout,
@@ -19,6 +22,12 @@ const {
   avatarsStyle,
   toggleSideBar
 } = useNav();
+
+// 修改密码
+const showChangePassword = ref(false);
+const changePasswordHandle = () => {
+  showChangePassword.value = unref(true);
+};
 </script>
 
 <template>
@@ -52,6 +61,10 @@ const {
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item @click="changePasswordHandle">
+              <IconifyIconOffline :icon="Lock" style="margin: 5px" />
+              修改密码
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"
@@ -70,6 +83,10 @@ const {
         <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
+    <!-- 修改密码 -->
+    <el-dialog v-model="showChangePassword" width="30%">
+      <change-password />
+    </el-dialog>
   </div>
 </template>
 

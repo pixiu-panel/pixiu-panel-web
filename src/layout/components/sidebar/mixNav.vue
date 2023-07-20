@@ -2,14 +2,16 @@
 import extraIcon from "./extraIcon.vue";
 import Search from "../search/index.vue";
 import Notice from "../notice/index.vue";
+import ChangePassword from "../changePassword/index.vue";
 import { isAllEmpty } from "@pureadmin/utils";
 import { useNav } from "@/layout/hooks/useNav";
-import { ref, toRaw, watch, onMounted, nextTick } from "vue";
+import { ref, toRaw, watch, onMounted, nextTick, unref } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { getParentPaths, findRouteByPath } from "@/router/utils";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
+import Lock from "@iconify-icons/ep/lock";
 
 const menuRef = ref();
 const defaultActive = ref(null);
@@ -49,6 +51,12 @@ watch(
     getDefaultActive(route.path);
   }
 );
+
+// 修改密码
+const showChangePassword = ref(false);
+const changePasswordHandle = () => {
+  showChangePassword.value = unref(true);
+};
 </script>
 
 <template>
@@ -100,6 +108,10 @@ watch(
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item @click="changePasswordHandle">
+              <IconifyIconOffline :icon="Lock" style="margin: 5px" />
+              修改密码
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"
@@ -118,6 +130,10 @@ watch(
         <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
+    <!-- 修改密码 -->
+    <el-dialog v-model="showChangePassword" width="30%">
+      <change-password />
+    </el-dialog>
   </div>
 </template>
 
