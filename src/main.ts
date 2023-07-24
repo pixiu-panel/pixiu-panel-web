@@ -42,7 +42,11 @@ app.component("FontIcon", FontIcon);
 
 // 全局注册按钮级别权限组件
 import { Auth } from "@/components/ReAuth";
+import { addPreventDefault } from "@/utils/preventDefault";
 app.component("Auth", Auth);
+
+// 阻止键盘F12、浏览器默认右键菜单、页面元素选中、图片默认可拖动
+addPreventDefault();
 
 getServerConfig(app).then(async config => {
   app.use(router);
