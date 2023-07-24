@@ -14,6 +14,10 @@ RUN pnpm build
 
 FROM nginx:stable-alpine as production-stage
 
+# 替换掉Nginx默认配置
+RUN rm /etc/nginx/conf.d/default.conf
+ADD docker/nginx.conf /etc/nginx/conf.d/default.conf
+
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 EXPOSE 80
 
