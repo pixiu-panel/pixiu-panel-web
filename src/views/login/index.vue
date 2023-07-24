@@ -10,13 +10,23 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  reactive,
+  toRaw,
+  onMounted,
+  onBeforeUnmount,
+  unref,
+  watch
+} from "vue";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
+import Opportunity from "@iconify-icons/ep/opportunity";
+import { register } from "@/api/login";
 
 defineOptions({
   name: "Login"
@@ -32,11 +42,15 @@ const { dataTheme, dataThemeChange } = useDataThemeChange();
 dataThemeChange();
 const { title } = useNav();
 
+const isRegister = ref(false);
+
 const ruleForm = reactive({
-  username: "",
-  password: ""
+  username: "", // 账号
+  password: "", // 密码
+  invitationCode: "" // 邀请码
 });
 
+// 登录
 const onLogin = async (formEl: FormInstance | undefined) => {
   loading.value = true;
   if (!formEl) return;
@@ -68,14 +82,57 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   });
 };
 
+// 注册
+const onRegister = (formEl: FormInstance | undefined) => {
+  loading.value = true;
+  if (!formEl) return;
+  /** await */ formEl.validate((valid, fields) => {
+    if (valid) {
+      register({
+        username: ruleForm.username,
+        password: ruleForm.password,
+        invitationCode: ruleForm.invitationCode
+      })
+        .then(resp => {
+          console.log("注册返回: ", resp);
+          // 跳转登录页
+          router.push("/login");
+          message("注册成功", { type: "success" });
+        })
+        .catch(err => {
+          console.log("注册失败", err);
+        })
+        .finally(() => {
+          loading.value = false;
+        });
+    } else {
+      loading.value = false;
+      return fields;
+    }
+  });
+};
+
 /** 使用公共函数，避免`removeEventListener`失效 */
 function onkeypress({ code }: KeyboardEvent) {
   if (code === "Enter") {
-    onLogin(ruleFormRef.value);
+    if (isRegister.value) {
+      onLogin(ruleFormRef.value);
+    } else {
+      onRegister(ruleFormRef.value);
+    }
   }
 }
 
+// 监听一下，判断是不是注册
+watch(
+  () => router.currentRoute.value.name,
+  () => {
+    isRegister.value = unref(router.currentRoute.value.name === "Register");
+  }
+);
+
 onMounted(() => {
+  isRegister.value = unref(router.currentRoute.value.name === "Register");
   window.document.addEventListener("keypress", onkeypress);
 });
 
@@ -146,8 +203,20 @@ onBeforeUnmount(() => {
               </el-form-item>
             </Motion>
 
+            <Motion :delay="150">
+              <el-form-item v-if="isRegister">
+                <el-input
+                  clearable
+                  v-model="ruleForm.invitationCode"
+                  placeholder="邀请码(非必填)"
+                  :prefix-icon="useRenderIcon(Opportunity)"
+                />
+              </el-form-item>
+            </Motion>
+
             <Motion :delay="250">
               <el-button
+                v-if="!isRegister"
                 class="w-full mt-4"
                 size="default"
                 type="primary"
@@ -155,6 +224,16 @@ onBeforeUnmount(() => {
                 @click="onLogin(ruleFormRef)"
               >
                 登录
+              </el-button>
+              <el-button
+                v-else
+                class="w-full mt-4"
+                size="default"
+                type="primary"
+                :loading="loading"
+                @click="onRegister(ruleFormRef)"
+              >
+                注册
               </el-button>
             </Motion>
           </el-form>
