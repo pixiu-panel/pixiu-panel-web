@@ -13,6 +13,13 @@ export type LoginResult = {
   expires: Date;
 };
 
+// 注册
+export const register = (data?: object) => {
+  return http.request<LoginResult>("post", "/admin/v1/login/register", {
+    data
+  });
+};
+
 /** 登录 */
 export const getLogin = (data?: object) => {
   return http.request<LoginResult>(
