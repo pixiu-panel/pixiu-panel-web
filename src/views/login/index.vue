@@ -115,7 +115,7 @@ const onRegister = (formEl: FormInstance | undefined) => {
 /** 使用公共函数，避免`removeEventListener`失效 */
 function onkeypress({ code }: KeyboardEvent) {
   if (code === "Enter") {
-    if (isRegister.value) {
+    if (!isRegister.value) {
       onLogin(ruleFormRef.value);
     } else {
       onRegister(ruleFormRef.value);
@@ -127,16 +127,24 @@ function onkeypress({ code }: KeyboardEvent) {
 watch(
   () => router.currentRoute.value.name,
   () => {
+    // 修改是否为注册的值
     isRegister.value = unref(router.currentRoute.value.name === "Register");
+    // 修改邀请码的值
+    ruleForm.invitationCode = router.currentRoute.value.query.code;
   }
 );
 
 onMounted(() => {
+  // 修改是否为注册的值
   isRegister.value = unref(router.currentRoute.value.name === "Register");
+  // 修改邀请码的值
+  ruleForm.invitationCode = router.currentRoute.value.query.code;
+  // 添加回车键监听事件
   window.document.addEventListener("keypress", onkeypress);
 });
 
 onBeforeUnmount(() => {
+  // 去掉回车键监听事件
   window.document.removeEventListener("keypress", onkeypress);
 });
 </script>
