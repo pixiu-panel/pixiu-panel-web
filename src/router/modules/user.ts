@@ -23,6 +23,14 @@ export default {
       meta: {
         title: "推送记录"
       }
+    },
+    {
+      path: "/user/invitation",
+      name: "邀请注册",
+      component: () => import("@/views/user/invitation.vue"),
+      meta: {
+        title: "邀请注册"
+      }
     }
   ]
 } as RouteConfigsTable;

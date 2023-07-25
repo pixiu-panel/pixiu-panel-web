@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref, unref } from "vue";
+import { onMounted, reactive, ref, unref } from "vue";
 import { pageNotifyLog } from "@/api/notify";
 import NotifyChannel from "./components/NotifyChannel.vue";
+import { message } from "@/utils/message";
 
 defineOptions({
   name: "推送记录"
@@ -12,16 +13,33 @@ const notifyChannelVisible = ref(false);
 
 // 推送记录
 const pushedHistory = ref([]);
+const pageData = reactive({
+  current: 1, // 第一页
+  size: 10, // 页数量
+  totalPage: 0 // 总页数
+});
 
 // 获取推送记录
-const getPushedHistoryHandle = async () => {
+const getPushedHistoryHandle = async (isHotLoad: boolean) => {
   try {
+    // 如果是热加载，修改一下页码
+    if (isHotLoad) {
+      const current = pageData.current + 1;
+      if (current > pageData.totalPage) {
+        message("数据已加载完毕", { type: "success" });
+        return;
+      }
+      pageData.current = current;
+    }
+    // 查询数据
     const response = await pageNotifyLog({
-      current: 1,
-      size: 10,
+      current: pageData.current,
+      size: pageData.size,
       userId: "mine"
     });
-    pushedHistory.value = response.records;
+    // 追加数据
+    pushedHistory.value = pushedHistory.value.concat(response.records);
+    pageData.totalPage = response.totalPage;
   } catch (e) {
     console.log("查询推送记录失败", e);
   }
@@ -44,7 +62,7 @@ const translateChannelHandle = (key: string) => {
 
 // 页面加载
 onMounted(() => {
-  getPushedHistoryHandle();
+  getPushedHistoryHandle(false);
 });
 </script>
 
