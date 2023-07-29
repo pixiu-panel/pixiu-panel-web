@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, unref } from "vue";
 import { message } from "@/utils/message";
-import wechatRobotQrcode from "@/assets/qrcode/wechat.jpg";
-import qqRobotQrcode from "@/assets/qrcode/qq.jpg";
-import { TabPaneName } from "element-plus";
 import {
   bindingNotifyPre,
   checkBindingNotify,
@@ -21,7 +18,6 @@ defineOptions({
 const bindingNotifyChannelVisible = ref(false);
 // 绑定代码
 const bindingCode = ref("");
-const qrcode = ref(wechatRobotQrcode);
 // 已绑定账号，QQ是QQ号，微信是微信昵称
 const bindedAccount = ref("");
 
@@ -105,19 +101,6 @@ const bindNotifyChannelHandle = async () => {
   } catch (e) {
     console.log(e);
     bindingNotifyChannelVisible.value = unref(false);
-  }
-};
-
-// 修改绑定渠道
-const changeChannelHandle = (name: TabPaneName) => {
-  switch (name) {
-    case "wechat":
-      console.log("是微信");
-      qrcode.value = unref(wechatRobotQrcode);
-      break;
-    case "qq":
-      qrcode.value = unref(qqRobotQrcode);
-      break;
   }
 };
 
@@ -210,7 +193,7 @@ onMounted(() => {
       :before-close="clearBindingData"
     >
       <div style="text-align: center">
-        <el-tabs v-model="bindingParam.type" @tab-change="changeChannelHandle">
+        <el-tabs v-model="bindingParam.type">
           <el-tab-pane
             label="微信"
             name="wechat"
