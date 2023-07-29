@@ -130,7 +130,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style>
+<style scoped>
 /* 时间线显示内容支持换行符 */
 .el-descriptions__cell {
   display: inline-flex;
