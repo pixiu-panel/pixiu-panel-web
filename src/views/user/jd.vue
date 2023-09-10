@@ -170,7 +170,7 @@ onMounted(() => {
                       <el-button
                         link
                         type="warning"
-                        :disabled="account.expired"
+                        :disabled="!account.expired"
                         @click="getJdQrcodeData"
                       >
                         刷新
